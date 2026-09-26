@@ -1,16 +1,18 @@
+import { Link } from "react-router-dom";
+
 function Navigation() {
   return (
     <nav className="navigation">
       <ul className="navigation__list">
         <li className="navigation__item">
-          <a className="navigation__link" href="/">
+          <Link className="navigation__link" to="/">
             Inicio
-          </a>
+          </Link>
         </li>
         <li className="navigation__item">
-          <a className="navigation__link" href="/rutina">
+          <Link className="navigation__link" to="/rutina">
             Mi rutina
-          </a>
+          </Link>
         </li>
       </ul>
     </nav>
