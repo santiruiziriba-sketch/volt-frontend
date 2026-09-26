@@ -1,3 +1,5 @@
+import "./Main.css";
+
 function Main() {
   return (
     <main className="main">
