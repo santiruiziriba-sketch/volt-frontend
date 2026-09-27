@@ -24,8 +24,8 @@ function Modal({ isOpen, onClose, title, children }) {
   }
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal">
+    <div className="modal__overlay" onClick={handleOverlayClick}>
+      <div className="modal__panel">
         <button
           type="button"
           className="modal__close"
