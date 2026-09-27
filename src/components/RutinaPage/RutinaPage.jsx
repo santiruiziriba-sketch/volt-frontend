@@ -1,24 +1,53 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import "./RutinaPage.css";
 import Preloader from "../Preloader/Preloader";
-import { SAMPLE_EXERCISES, EMPTY_RESULTS } from "../../utils/sampleExercises";
+import { fetchExercises } from "../../utils/ExerciseApi";
+import {
+  obtenerConfiguracionObjetivo,
+  DIFICULTAD_POR_NIVEL,
+} from "../../utils/trainingConfig";
 
 const ITEMS_POR_PAGINA = 3;
 
 function RutinaPage() {
+  const location = useLocation();
+  const datos = location.state;
+
   const [cargando, setCargando] = useState(true);
   const [ejercicios, setEjercicios] = useState([]);
+  const [error, setError] = useState(false);
   const [cantidadVisible, setCantidadVisible] = useState(ITEMS_POR_PAGINA);
 
   useEffect(() => {
-    setCargando(true);
-    const timer = setTimeout(() => {
-      setEjercicios(SAMPLE_EXERCISES);
+    if (!datos) {
       setCargando(false);
-    }, 1200);
+      return;
+    }
 
-    return () => clearTimeout(timer);
-  }, []);
+    const config = obtenerConfiguracionObjetivo(datos.objetivo);
+    if (!config) {
+      setCargando(false);
+      return;
+    }
+
+    setCargando(true);
+    setError(false);
+
+    fetchExercises({
+      type: config.tipoEjercicio,
+      difficulty: DIFICULTAD_POR_NIVEL[datos.nivel],
+      equipments: datos.equipamiento?.[0],
+    })
+      .then((resultado) => {
+        setEjercicios(resultado);
+        setCargando(false);
+      })
+      .catch(() => {
+        setError(true);
+        setCargando(false);
+      });
+  }, [datos]);
 
   function mostrarMas() {
     setCantidadVisible((actual) => actual + ITEMS_POR_PAGINA);
@@ -33,11 +62,19 @@ function RutinaPage() {
 
       {cargando && <Preloader />}
 
-      {!cargando && ejercicios.length === 0 && (
+      {!cargando && error && (
+        <p className="rutina-page__empty">
+          Lo sentimos, algo ha salido mal durante la solicitud. Es posible que
+          haya un problema de conexión o que el servidor no funcione. Por favor,
+          inténtalo más tarde.
+        </p>
+      )}
+
+      {!cargando && !error && ejercicios.length === 0 && (
         <p className="rutina-page__empty">No se ha encontrado nada.</p>
       )}
 
-      {!cargando && ejercicios.length > 0 && (
+      {!cargando && !error && ejercicios.length > 0 && (
         <>
           <ul className="rutina-page__list">
             {ejerciciosVisibles.map((ej, index) => (
@@ -47,7 +84,7 @@ function RutinaPage() {
                 <p className="exercise-card__text">
                   {ej.instructions || ej.safety_info}
                 </p>
-                {ej.equipments.length > 0 && (
+                {ej.equipments?.length > 0 && (
                   <p className="exercise-card__equipment">
                     Equipo: {ej.equipments.join(", ")}
                   </p>

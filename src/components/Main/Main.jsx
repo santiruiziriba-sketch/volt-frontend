@@ -1,9 +1,12 @@
 import "./Main.css";
+import { useHistory } from "react-router-dom";
 import RutinaForm from "../RutinaForm/RutinaForm";
 
 function Main() {
+  const history = useHistory();
+
   function handleGenerarRutina(datos) {
-    console.log("Datos del formulario:", datos);
+    history.push("/rutina", datos);
   }
 
   return (
