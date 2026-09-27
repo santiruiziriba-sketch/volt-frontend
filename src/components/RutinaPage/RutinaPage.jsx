@@ -20,12 +20,26 @@ function RutinaPage() {
   const [cantidadVisible, setCantidadVisible] = useState(ITEMS_POR_PAGINA);
 
   useEffect(() => {
-    if (!datos) {
+    const datosActuales =
+      datos ?? JSON.parse(localStorage.getItem("volt-rutina-datos") || "null");
+
+    if (!datosActuales) {
       setCargando(false);
       return;
     }
 
-    const config = obtenerConfiguracionObjetivo(datos.objetivo);
+    const guardado = localStorage.getItem("volt-rutina-ejercicios");
+    const mismosDatos =
+      JSON.stringify(datosActuales) ===
+      localStorage.getItem("volt-rutina-datos");
+
+    if (!datos && guardado && mismosDatos) {
+      setEjercicios(JSON.parse(guardado));
+      setCargando(false);
+      return;
+    }
+
+    const config = obtenerConfiguracionObjetivo(datosActuales.objetivo);
     if (!config) {
       setCargando(false);
       return;
@@ -36,12 +50,20 @@ function RutinaPage() {
 
     fetchExercises({
       type: config.tipoEjercicio,
-      difficulty: DIFICULTAD_POR_NIVEL[datos.nivel],
-      equipments: datos.equipamiento?.[0],
+      difficulty: DIFICULTAD_POR_NIVEL[datosActuales.nivel],
+      equipments: datosActuales.equipamiento,
     })
       .then((resultado) => {
         setEjercicios(resultado);
         setCargando(false);
+        localStorage.setItem(
+          "volt-rutina-datos",
+          JSON.stringify(datosActuales),
+        );
+        localStorage.setItem(
+          "volt-rutina-ejercicios",
+          JSON.stringify(resultado),
+        );
       })
       .catch(() => {
         setError(true);
