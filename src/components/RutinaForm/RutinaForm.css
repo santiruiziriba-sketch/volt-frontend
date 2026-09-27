@@ -23,6 +23,12 @@
   background: var(--card-bg);
   color: var(--text-h);
   font-size: 15px;
+  transition: border-color 0.2s ease;
+}
+
+.rutina-form__select:focus {
+  border-color: var(--yellow);
+  outline: none;
 }
 
 .rutina-form__chips {
@@ -39,12 +45,17 @@
   color: var(--gray-200);
   font-size: 13px;
   cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.1s ease;
 }
 
 .chip--active {
   background: var(--yellow);
   border-color: var(--yellow);
   color: var(--gray-950);
+  transform: scale(0.96);
 }
 
 .rutina-form__submit {
@@ -57,10 +68,21 @@
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
+  transition:
+    transform 0.1s ease,
+    opacity 0.2s ease;
 }
 
 .rutina-form__submit:disabled {
   background: var(--gray-600);
   color: var(--gray-400);
   cursor: not-allowed;
+}
+
+.rutina-form__submit:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.rutina-form__submit:active:not(:disabled) {
+  transform: scale(0.97);
 }
