@@ -22,9 +22,14 @@ export function fetchExercises({ type, muscle, difficulty, equipments }) {
   const listaEquipos = equipments?.length ? equipments : [null];
 
   return Promise.all(
-    listaEquipos.map((equipment) =>
-      fetchOne({ type, muscle, difficulty, equipment }),
-    ),
+    listaEquipos.map((equipment) => {
+      if (equipment === "none") {
+        return fetchOne({ type, muscle, difficulty, equipment: null }).then(
+          (resultado) => resultado.filter((ej) => !ej.equipments?.length),
+        );
+      }
+      return fetchOne({ type, muscle, difficulty, equipment });
+    }),
   )
     .then((resultados) => {
       const combinados = resultados.flat();

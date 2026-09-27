@@ -106,11 +106,12 @@ function RutinaPage() {
                 <p className="exercise-card__text">
                   {ej.instructions || ej.safety_info}
                 </p>
-                {ej.equipments?.length > 0 && (
-                  <p className="exercise-card__equipment">
-                    Equipo: {ej.equipments.join(", ")}
-                  </p>
-                )}
+                <p className="exercise-card__equipment">
+                  Equipo:{" "}
+                  {ej.equipments?.length > 0
+                    ? ej.equipments.join(", ")
+                    : "Sin equipo"}
+                </p>
               </li>
             ))}
           </ul>
