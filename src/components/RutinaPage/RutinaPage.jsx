@@ -3,12 +3,14 @@ import { useLocation } from "react-router-dom";
 import "./RutinaPage.css";
 import Preloader from "../Preloader/Preloader";
 import { fetchExercises } from "../../utils/ExerciseApi";
+import { armarRutina } from "../../utils/routineBuilder";
 import {
   obtenerConfiguracionObjetivo,
   DIFICULTAD_POR_NIVEL,
 } from "../../utils/trainingConfig";
 
 const ITEMS_POR_PAGINA = 3;
+const CLAVE_STORAGE = "volt-rutina";
 
 function RutinaPage() {
   const location = useLocation();
@@ -20,21 +22,20 @@ function RutinaPage() {
   const [cantidadVisible, setCantidadVisible] = useState(ITEMS_POR_PAGINA);
 
   useEffect(() => {
-    const datosActuales =
-      datos ?? JSON.parse(localStorage.getItem("volt-rutina-datos") || "null");
+    const guardado = JSON.parse(localStorage.getItem(CLAVE_STORAGE) || "null");
+    const datosActuales = datos ?? guardado?.datos;
 
     if (!datosActuales) {
       setCargando(false);
       return;
     }
 
-    const guardado = localStorage.getItem("volt-rutina-ejercicios");
     const mismosDatos =
-      JSON.stringify(datosActuales) ===
-      localStorage.getItem("volt-rutina-datos");
+      guardado &&
+      JSON.stringify(guardado.datos) === JSON.stringify(datosActuales);
 
-    if (!datos && guardado && mismosDatos) {
-      setEjercicios(JSON.parse(guardado));
+    if (mismosDatos && guardado.rutina) {
+      setEjercicios(guardado.rutina);
       setCargando(false);
       return;
     }
@@ -48,21 +49,28 @@ function RutinaPage() {
     setCargando(true);
     setError(false);
 
-    fetchExercises({
-      type: config.tipoEjercicio,
-      difficulty: DIFICULTAD_POR_NIVEL[datosActuales.nivel],
-      equipments: datosActuales.equipamiento,
-    })
-      .then((resultado) => {
-        setEjercicios(resultado);
+    Promise.all(
+      config.bloques.map((bloque) =>
+        fetchExercises({
+          type: bloque.tipoEjercicio,
+          difficulty: DIFICULTAD_POR_NIVEL[datosActuales.nivel],
+          equipments: datosActuales.equipamiento,
+        }),
+      ),
+    )
+      .then((pools) => {
+        const rutina = armarRutina({
+          config,
+          pools,
+          dias: datosActuales.dias,
+          nivel: datosActuales.nivel,
+        });
+        setEjercicios(rutina);
+        setCantidadVisible(ITEMS_POR_PAGINA);
         setCargando(false);
         localStorage.setItem(
-          "volt-rutina-datos",
-          JSON.stringify(datosActuales),
-        );
-        localStorage.setItem(
-          "volt-rutina-ejercicios",
-          JSON.stringify(resultado),
+          CLAVE_STORAGE,
+          JSON.stringify({ datos: datosActuales, rutina }),
         );
       })
       .catch(() => {
@@ -100,9 +108,17 @@ function RutinaPage() {
         <>
           <ul className="rutina-page__list">
             {ejerciciosVisibles.map((ej, index) => (
-              <li key={index} className="exercise-card">
+              <li
+                key={`${ej.dia}-${ej.name}-${index}`}
+                className="exercise-card"
+              >
+                <p className="exercise-card__day">Día {ej.dia}</p>
                 <h2 className="exercise-card__name">{ej.name}</h2>
                 <p className="exercise-card__muscle">{ej.muscle}</p>
+                <p className="exercise-card__prescription">
+                  {ej.series} series x {ej.repeticiones} · descanso{" "}
+                  {ej.descansoSegundos} seg
+                </p>
                 <p className="exercise-card__text">
                   {ej.instructions || ej.safety_info}
                 </p>

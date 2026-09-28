@@ -78,3 +78,18 @@
 .rutina-page__more:hover {
   border-color: var(--yellow);
 }
+
+.exercise-card__day {
+  color: var(--gray-400);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 6px;
+}
+
+.exercise-card__prescription {
+  color: var(--text-h);
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0 0 8px;
+}
