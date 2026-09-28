@@ -1,7 +1,11 @@
+import { useState } from "react";
 import "./Header.css";
 import Navigation from "../Navigation/Navigation";
+import Modal from "../Modal/Modal";
 
 function Header() {
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
   return (
     <header className="header">
       <p className="header__logo">
@@ -15,7 +19,23 @@ function Header() {
         </svg>
         Volt
       </p>
-      <Navigation />
+      <div className="header__actions">
+        <Navigation />
+        <button
+          type="button"
+          className="header__login"
+          onClick={() => setIsLoginOpen(true)}
+        >
+          Iniciar sesión
+        </button>
+      </div>
+      <Modal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        title="Iniciar sesión"
+      >
+        <p>Próximamente: acá vas a poder entrar con tu cuenta.</p>
+      </Modal>
     </header>
   );
 }
