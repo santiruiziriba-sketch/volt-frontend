@@ -12,42 +12,38 @@ import {
 const ITEMS_POR_PAGINA = 3;
 const CLAVE_STORAGE = "volt-rutina";
 
+function leerGuardado() {
+  try {
+    return JSON.parse(localStorage.getItem(CLAVE_STORAGE) || "null");
+  } catch {
+    return null;
+  }
+}
+
 function RutinaPage() {
   const location = useLocation();
-  const datos = location.state;
-
-  const [cargando, setCargando] = useState(true);
-  const [ejercicios, setEjercicios] = useState([]);
-  const [error, setError] = useState(false);
+  const [guardado, setGuardado] = useState(leerGuardado);
+  const [errorClave, setErrorClave] = useState(null);
   const [cantidadVisible, setCantidadVisible] = useState(ITEMS_POR_PAGINA);
 
+  const datosActuales = location.state ?? guardado?.datos ?? null;
+  const clave = datosActuales ? JSON.stringify(datosActuales) : null;
+  const config = datosActuales
+    ? obtenerConfiguracionObjetivo(datosActuales.objetivo)
+    : null;
+  const rutina =
+    guardado && JSON.stringify(guardado.datos) === clave
+      ? guardado.rutina
+      : null;
+
+  const error = clave !== null && rutina === null && errorClave === clave;
+  const cargando = Boolean(config) && rutina === null && !error;
+  const ejercicios = rutina ?? [];
+
   useEffect(() => {
-    const guardado = JSON.parse(localStorage.getItem(CLAVE_STORAGE) || "null");
-    const datosActuales = datos ?? guardado?.datos;
+    if (!config || rutina !== null) return undefined;
 
-    if (!datosActuales) {
-      setCargando(false);
-      return;
-    }
-
-    const mismosDatos =
-      guardado &&
-      JSON.stringify(guardado.datos) === JSON.stringify(datosActuales);
-
-    if (mismosDatos && guardado.rutina) {
-      setEjercicios(guardado.rutina);
-      setCargando(false);
-      return;
-    }
-
-    const config = obtenerConfiguracionObjetivo(datosActuales.objetivo);
-    if (!config) {
-      setCargando(false);
-      return;
-    }
-
-    setCargando(true);
-    setError(false);
+    let cancelado = false;
 
     Promise.all(
       config.bloques.map((bloque) =>
@@ -59,25 +55,26 @@ function RutinaPage() {
       ),
     )
       .then((pools) => {
-        const rutina = armarRutina({
+        if (cancelado) return;
+        const nuevaRutina = armarRutina({
           config,
           pools,
           dias: datosActuales.dias,
           nivel: datosActuales.nivel,
         });
-        setEjercicios(rutina);
+        const nuevoGuardado = { datos: datosActuales, rutina: nuevaRutina };
+        localStorage.setItem(CLAVE_STORAGE, JSON.stringify(nuevoGuardado));
+        setGuardado(nuevoGuardado);
         setCantidadVisible(ITEMS_POR_PAGINA);
-        setCargando(false);
-        localStorage.setItem(
-          CLAVE_STORAGE,
-          JSON.stringify({ datos: datosActuales, rutina }),
-        );
       })
       .catch(() => {
-        setError(true);
-        setCargando(false);
+        if (!cancelado) setErrorClave(clave);
       });
-  }, [datos]);
+
+    return () => {
+      cancelado = true;
+    };
+  }, [clave, config, rutina, datosActuales]);
 
   function mostrarMas() {
     setCantidadVisible((actual) => actual + ITEMS_POR_PAGINA);
