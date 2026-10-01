@@ -1,16 +1,60 @@
-# React + Vite
+# Volt — Aplicación de entrenamiento
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Volt es una aplicación de entrenamiento desarrollada con React que permite generar rutinas personalizadas según el objetivo de entrenamiento, nivel de experiencia, cantidad de días de entrenamiento y equipamiento disponible.
 
-Currently, two official plugins are available:
+La aplicación utiliza la API de ejercicios de API Ninjas para obtener información sobre los ejercicios.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Aviso sobre el idioma de los ejercicios
 
-## React Compiler
+**En esta iteración, los nombres de los ejercicios, las instrucciones y otra información relacionada con los ejercicios pueden aparecer en inglés**, ya que son datos proporcionados por la API de terceros.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+La funcionalidad de traducción no está incluida en esta iteración, ya que el objetivo actual es continuar desarrollando y mejorando las funcionalidades principales de la aplicación.
 
-## Expanding the ESLint configuration
+## Funcionalidades principales
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Generación de rutinas según las preferencias del usuario.
+- Integración con la API de ejercicios de API Ninjas.
+- Filtrado de ejercicios según equipamiento y parámetros de entrenamiento.
+- Preloader durante la carga de datos.
+- Manejo de errores en las solicitudes a la API.
+- Almacenamiento de la rutina generada mediante localStorage.
+- Funcionalidad "Mostrar más" para cargar ejercicios progresivamente.
+- Diseño responsive.
+- Navegación mediante React Router.
+- Componente modal reutilizable.
+
+## Tecnologías utilizadas
+
+- React
+- Vite
+- JavaScript
+- React Router
+- CSS
+- Fetch API
+- API Ninjas
+
+## Instalación y ejecución
+
+Instalar las dependencias:
+
+```bash
+npm install
+```
+
+Ejecutar el servidor de desarrollo:
+
+```bash
+npm run dev
+```
+
+Crear la versión de producción:
+
+```bash
+npm run build
+```
+
+Ejecutar ESLint:
+
+```bash
+npm run lint
+```
