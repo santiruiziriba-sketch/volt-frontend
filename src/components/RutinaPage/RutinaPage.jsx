@@ -7,9 +7,9 @@ import { armarRutina } from "../../utils/routineBuilder";
 import {
   obtenerConfiguracionObjetivo,
   DIFICULTAD_POR_NIVEL,
+  ITEMS_POR_PAGINA,
 } from "../../utils/trainingConfig";
 
-const ITEMS_POR_PAGINA = 3;
 const CLAVE_STORAGE = "volt-rutina";
 
 function leerGuardado() {
