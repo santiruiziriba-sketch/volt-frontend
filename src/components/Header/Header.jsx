@@ -1,10 +1,28 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import "./Header.css";
 import Navigation from "../Navigation/Navigation";
 import Modal from "../Modal/Modal";
+import Register from "../Register/Register";
+import Login from "../Login/Login";
+import { Link, useHistory, useLocation } from "react-router-dom";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 
 function Header() {
+  const { currentUser, setCurrentUser } = useContext(CurrentUserContext);
+  const history = useHistory();
+  const location = useLocation();
+
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+
+  const shouldOpenLogin = location.state?.openLogin === true;
+  const isLoginModalOpen = isLoginOpen || shouldOpenLogin;
+
+  function handleLogout() {
+    localStorage.removeItem("jwt");
+    setCurrentUser(null);
+    history.push("/");
+  }
 
   return (
     <header className="header">
@@ -21,20 +39,67 @@ function Header() {
       </p>
       <div className="header__actions">
         <Navigation />
-        <button
-          type="button"
-          className="header__login"
-          onClick={() => setIsLoginOpen(true)}
-        >
-          Iniciar sesión
-        </button>
+
+        {currentUser ? (
+          <>
+            <Link to="/mis-rutinas" className="header__login">
+              Rutinas guardadas
+            </Link>
+
+            <button
+              type="button"
+              className="header__login"
+              onClick={handleLogout}
+            >
+              Cerrar sesión
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            className="header__login"
+            onClick={() => setIsLoginOpen(true)}
+          >
+            Iniciar sesión
+          </button>
+        )}
       </div>
       <Modal
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
+        isOpen={isLoginModalOpen}
+        onClose={() => {
+          setIsLoginOpen(false);
+
+          if (shouldOpenLogin) {
+            history.replace({
+              pathname: location.pathname,
+              search: location.search,
+              hash: location.hash,
+              state: { ...location.state, openLogin: false },
+            });
+          }
+        }}
         title="Iniciar sesión"
       >
-        <p>Próximamente: acá vas a poder entrar con tu cuenta.</p>
+        <Login
+          onClose={() => setIsLoginOpen(false)}
+          onRegister={() => {
+            setIsLoginOpen(false);
+            setIsRegisterOpen(true);
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+        title="Crear cuenta"
+      >
+        <Register
+          onLogin={() => {
+            setIsRegisterOpen(false);
+            setIsLoginOpen(true);
+          }}
+        />
       </Modal>
     </header>
   );
