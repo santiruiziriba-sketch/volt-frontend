@@ -18,6 +18,22 @@ function Header() {
   const shouldOpenLogin = location.state?.openLogin === true;
   const isLoginModalOpen = isLoginOpen || shouldOpenLogin;
 
+  function handleCloseLogin() {
+    setIsLoginOpen(false);
+
+    if (shouldOpenLogin) {
+      const nextState = { ...location.state };
+      delete nextState.openLogin;
+
+      history.replace({
+        pathname: location.pathname,
+        search: location.search,
+        hash: location.hash,
+        state: nextState,
+      });
+    }
+  }
+
   function handleLogout() {
     localStorage.removeItem("jwt");
     setCurrentUser(null);
@@ -26,16 +42,19 @@ function Header() {
 
   return (
     <header className="header">
+      {" "}
       <p className="header__logo">
+        {" "}
         <svg
           className="header__logo-icon"
           viewBox="0 0 24 24"
           fill="currentColor"
           aria-hidden="true"
         >
-          <path d="M13 2 3 14h7l-1 8 11-14h-7l1-6z" />
+          {" "}
+          <path d="M13 2 3 14h7l-1 8 11-14h-7l1-6z" />{" "}
         </svg>
-        Volt
+        Volt{" "}
       </p>
       <div className="header__actions">
         <Navigation />
@@ -45,7 +64,6 @@ function Header() {
             <Link to="/mis-rutinas" className="header__login">
               Rutinas guardadas
             </Link>
-
             <button
               type="button"
               className="header__login"
@@ -66,29 +84,17 @@ function Header() {
       </div>
       <Modal
         isOpen={isLoginModalOpen}
-        onClose={() => {
-          setIsLoginOpen(false);
-
-          if (shouldOpenLogin) {
-            history.replace({
-              pathname: location.pathname,
-              search: location.search,
-              hash: location.hash,
-              state: { ...location.state, openLogin: false },
-            });
-          }
-        }}
+        onClose={handleCloseLogin}
         title="Iniciar sesión"
       >
         <Login
-          onClose={() => setIsLoginOpen(false)}
+          onClose={handleCloseLogin}
           onRegister={() => {
-            setIsLoginOpen(false);
+            handleCloseLogin();
             setIsRegisterOpen(true);
           }}
         />
       </Modal>
-
       <Modal
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
